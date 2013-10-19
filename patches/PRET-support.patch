@@ -1,0 +1,72 @@
+######## ########################
+##
+##	updated version of PRET patch
+##	mad props & thanks to creator: "pyro" - http://goo.gl/2UO46M
+##	
+##### #####################
+Index: src/engine/ftpcontrolsocket.cpp
+===================================================================
+--- src/engine/ftpcontrolsocket.cpp	(revision 5209)
++++ src/engine/ftpcontrolsocket.cpp	(working copy)
+@@ -94,6 +94,7 @@
+ {
+ 	rawtransfer_init = 0,
+ 	rawtransfer_type,
++	rawtransfer_pret,
+ 	rawtransfer_port_pasv,
+ 	rawtransfer_rest,
+ 	rawtransfer_transfer,
+@@ -4067,7 +4068,12 @@
+ 
+ 	if ((pData->pOldData->binary && m_lastTypeBinary == 1) ||
+ 		(!pData->pOldData->binary && m_lastTypeBinary == 0))
+-		pData->opState = rawtransfer_port_pasv;
++		{
++			if (pData->bPasv && CServerCapabilities::GetCapability(*m_pCurrentServer, pret_command) == yes)
++				pData->opState = rawtransfer_pret;
++			else
++				pData->opState = rawtransfer_port_pasv;
++		}
+ 	else
+ 		pData->opState = rawtransfer_type;
+ 
+@@ -4102,10 +4108,25 @@
+ 			error = true;
+ 		else
+ 		{
+-			pData->opState = rawtransfer_port_pasv;
++			if (pData->bPasv && CServerCapabilities::GetCapability(*m_pCurrentServer, pret_command) == yes) 
++					pData->opState = rawtransfer_pret;
++			else
++				pData->opState = rawtransfer_port_pasv;
+ 			m_lastTypeBinary = pData->pOldData->binary ? 1 : 0;
+ 		}
+ 		break;
++
++	case rawtransfer_pret:
++		if (code != 2 && code != 2)
++		{
++			error = true;
++		}
++		else
++		{
++			pData->opState = rawtransfer_port_pasv;
++		}
++		break;
++
+ 	case rawtransfer_port_pasv:
+ 		if (code != 2 && code != 3)
+ 		{
+@@ -4258,6 +4279,12 @@
+ 			cmd = _T("TYPE A");
+ 		measureRTT = true;
+ 		break;
++
++	case rawtransfer_pret:
++		cmd = _T("PRET ");
++		cmd += pData->cmd;
++		break;
++	
+ 	case rawtransfer_port_pasv:
+ 		if (pData->bPasv)
+ 		{
