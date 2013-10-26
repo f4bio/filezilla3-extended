@@ -91,6 +91,7 @@ if [ $(hasParam "build") ]; then
 	sh autogen.sh
 	check "autogen"
 
+	mkdir ../"$compileDir"
 	cd ../"$compileDir"
 	sh ../"$srcDir"/configure
 	check "configure"
