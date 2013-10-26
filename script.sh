@@ -42,6 +42,21 @@ compileDir="compile/"
 repoUrl="https://svn.filezilla-project.org/svn/FileZilla3/trunk"
 ####### ######### #######
 
+####### #### #######
+####### help #######
+####### #### #######
+
+if [ $(hasParam "help") ]; then
+	pprint "help - this"
+	pprint "clean - clean"
+	pprint "get - get latest source"
+	pprint "patch - apply patches"
+	pprint "build - compile source (configure and make)"
+	pprint "install - install compiled source (make install)"
+	pprint "dist - create some distribution packages (currently: bzip, gzip, zip, xz)"
+	pprint "all - clean, get, patch, build, install"
+fi
+
 ####### ##### #######
 ####### clean #######
 ####### ##### #######
@@ -50,7 +65,7 @@ if [ $(hasParam "clean") ]; then
 	cd "$baseDir"
 	pprint "cleaning up..."
 
-	rm -r "$srcDir" "$distDir"
+	rm -rf "$srcDir" "$distDir"
 	check "cleaning"
 fi
 
@@ -126,8 +141,8 @@ if [ $(hasParam "install") ]; then
 	make dist-zip
 	check "make install"
 
-	mkdir ../dist/
-	mv *.tar.bz2 ../dist/
-	mv *.tar.gz ../dist/
-	mv *.tar.xz ../dist/
+	mkdir ../dist
+	mv *.tar.bz2 ../dist
+	mv *.tar.gz ../dist
+	mv *.tar.xz ../dist
 fi
